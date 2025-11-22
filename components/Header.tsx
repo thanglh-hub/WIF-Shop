@@ -35,6 +35,11 @@ export default function Header() {
     }
   };
 
+  // Kiểm tra trang hiện tại để highlight
+  const isActive = (path: string) => {
+    return router.pathname === path || router.pathname.startsWith(path + '/');
+  };
+
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -70,16 +75,54 @@ export default function Header() {
 
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/products" className="text-gray-700 hover:text-primary-600 transition-colors">
+            <Link 
+              href="/products" 
+              className={`transition-colors ${
+                isActive('/products') 
+                  ? 'text-primary-600 font-semibold' 
+                  : 'text-gray-700 hover:text-primary-600'
+              }`}
+            >
               Sản phẩm
             </Link>
-            <Link href="/blogs" className="text-gray-700 hover:text-primary-600 transition-colors">
+            <Link 
+              href="/blogs" 
+              className={`transition-colors ${
+                isActive('/blogs') 
+                  ? 'text-primary-600 font-semibold' 
+                  : 'text-gray-700 hover:text-primary-600'
+              }`}
+            >
               Blog
             </Link>
-            <Link href="/tools" className="text-gray-700 hover:text-primary-600 transition-colors">
+            <Link 
+              href="/tools" 
+              className={`transition-colors ${
+                isActive('/tools') 
+                  ? 'text-primary-600 font-semibold' 
+                  : 'text-gray-700 hover:text-primary-600'
+              }`}
+            >
               Công cụ
             </Link>
-            <Link href="/contact" className="text-gray-700 hover:text-primary-600 transition-colors">
+            <Link 
+              href="/guide" 
+              className={`transition-colors ${
+                isActive('/guide') 
+                  ? 'text-primary-600 font-semibold' 
+                  : 'text-gray-700 hover:text-primary-600'
+              }`}
+            >
+              Hướng dẫn mua hàng
+            </Link>
+            <Link 
+              href="/contact" 
+              className={`transition-colors ${
+                isActive('/contact') 
+                  ? 'text-primary-600 font-semibold' 
+                  : 'text-gray-700 hover:text-primary-600'
+              }`}
+            >
               Liên hệ
             </Link>
           </nav>
@@ -152,30 +195,57 @@ export default function Header() {
               <Link
                 href="/products"
                 onClick={() => setIsMenuOpen(false)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  isActive('/products')
+                    ? 'bg-primary-100 text-primary-600 font-semibold'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
               >
                 Sản phẩm
               </Link>
               <Link
                 href="/blogs"
                 onClick={() => setIsMenuOpen(false)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  isActive('/blogs')
+                    ? 'bg-primary-100 text-primary-600 font-semibold'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
               >
                 Blog
               </Link>
               <Link
                 href="/tools"
                 onClick={() => setIsMenuOpen(false)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  isActive('/tools')
+                    ? 'bg-primary-100 text-primary-600 font-semibold'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
               >
                 Công cụ
               </Link>
               <Link
                 href="/contact"
                 onClick={() => setIsMenuOpen(false)}
-                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  isActive('/contact')
+                    ? 'bg-primary-100 text-primary-600 font-semibold'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
               >
                 Liên hệ
+              </Link>
+              <Link
+                href="/guide"
+                onClick={() => setIsMenuOpen(false)}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  isActive('/guide')
+                    ? 'bg-primary-100 text-primary-600 font-semibold'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Hướng dẫn mua hàng
               </Link>
               <Link
                 href="/track-order"
