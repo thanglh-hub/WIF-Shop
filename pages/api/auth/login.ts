@@ -1,15 +1,12 @@
-// API route: POST /api/auth/login - Đăng nhập
+// API route: POST /api/auth/login - Đăng nhập (Mock data)
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { connectToDatabase } from '@/lib/mongodb';
-import { comparePassword, generateToken } from '@/lib/auth';
-import { User } from '@/types';
+import { mockUsers } from '@/lib/mockData';
+import { generateToken } from '@/lib/auth';
 
-// Handler cho POST request
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Chỉ cho phép POST method
   if (req.method !== 'POST') {
     return res.status(405).json({
       success: false,
@@ -18,13 +15,9 @@ export default async function handler(
   }
 
   try {
-    // Kết nối database
-    const { db } = await connectToDatabase();
-
-    // Lấy dữ liệu từ request body
     const { email, password } = req.body;
 
-    // Validate dữ liệu
+    // Validate
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -32,10 +25,9 @@ export default async function handler(
       });
     }
 
-    // Tìm user theo email
-    const user = await db.collection<User>('users').findOne({ email });
-
-    // Kiểm tra nếu không tìm thấy user
+    // Mock login - accept any password for demo
+    const user = mockUsers.find(u => u.email === email);
+    
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -43,18 +35,9 @@ export default async function handler(
       });
     }
 
-    // So sánh password
-    const isPasswordValid = await comparePassword(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        success: false,
-        message: 'Email hoặc mật khẩu không đúng'
-      });
-    }
-
-    // Tạo JWT token
+    // Generate token
     const token = generateToken({
-      userId: user._id!.toString(),
+      userId: user._id!,
       email: user.email,
       role: user.role
     });
@@ -66,12 +49,11 @@ export default async function handler(
       success: true,
       message: 'Đăng nhập thành công',
       data: {
-        user: userWithoutPassword,
-        token
+        token,
+        user: userWithoutPassword
       }
     });
   } catch (error: any) {
-    // Xử lý lỗi
     return res.status(500).json({
       success: false,
       message: 'Lỗi khi đăng nhập',
@@ -79,4 +61,3 @@ export default async function handler(
     });
   }
 }
-

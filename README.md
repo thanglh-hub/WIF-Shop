@@ -14,8 +14,7 @@ Website bán tài khoản game hiện đại, trực quan với giao diện đ�
 ## Công nghệ sử dụng
 
 - **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes
-- **Database**: MongoDB
+- **Backend**: Next.js API Routes (Mock Data)
 - **State Management**: Zustand
 - **Icons**: React Icons
 
@@ -27,14 +26,15 @@ Website bán tài khoản game hiện đại, trực quan với giao diện đ�
 npm install
 ```
 
-2. **Cấu hình environment variables:**
-   Tạo file `.env.local` trong thư mục gốc:
+2. **Cấu hình environment variables (tùy chọn):**
+   Tạo file `.env.local` trong thư mục gốc nếu cần:
 
 ```env
-MONGODB_URI=mongodb://localhost:27017/shop_account_mmo
 JWT_SECRET=your-secret-key-change-this-in-production
 NEXT_PUBLIC_API_URL=http://localhost:3000/api
 ```
+
+**Lưu ý**: Project hiện đang sử dụng Mock Data, không cần cấu hình MongoDB.
 
 3. **Chạy development server:**
 
@@ -42,20 +42,7 @@ NEXT_PUBLIC_API_URL=http://localhost:3000/api
 npm run dev
 ```
 
-4. **Chạy seed data (tạo mockup data):**
-   Sau khi server đã chạy, mở trình duyệt và truy cập:
-
-```
-http://localhost:3000/api/seed
-```
-
-Hoặc dùng curl:
-
-```bash
-curl -X POST http://localhost:3000/api/seed
-```
-
-5. **Mở trình duyệt:**
+4. **Mở trình duyệt:**
    Truy cập [http://localhost:3000](http://localhost:3000)
 
 ## Cấu trúc project
@@ -71,7 +58,7 @@ project_shop_mmo/
 │   ├── products/      # Trang sản phẩm
 │   └── index.tsx      # Trang chủ
 ├── lib/               # Utilities
-│   ├── mongodb.ts     # MongoDB connection
+│   ├── mockData.ts    # Mock data cho development
 │   └── auth.ts        # Authentication helpers
 ├── store/             # State management
 │   └── cartStore.ts   # Giỏ hàng store
@@ -103,13 +90,15 @@ project_shop_mmo/
 - `GET /api/orders` - Lấy danh sách đơn hàng
 - `POST /api/orders` - Tạo đơn hàng mới
 
-## Mockup Data
+## Mock Data
 
-Script seed data sẽ tạo 3 sản phẩm mẫu:
+Project sử dụng Mock Data được định nghĩa trong `lib/mockData.ts`. Dữ liệu mẫu bao gồm:
 
-1. **Netflix Premium** - 50,000 VNĐ
-2. **Spotify Premium** - 35,000 VNĐ
-3. **Gaming Accounts** - 150,000 VNĐ
+- Tài khoản game mẫu (Genshin Impact, Valorant, ...)
+- Đơn hàng mẫu
+- Người dùng mẫu
+
+**Lưu ý**: Tất cả dữ liệu chỉ tồn tại trong memory, sẽ mất khi restart server. Để sử dụng database thật, bạn cần tích hợp MongoDB hoặc database khác.
 
 ## Development
 

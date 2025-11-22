@@ -1,16 +1,12 @@
-// API route: GET /api/orders/[id] - Lấy chi tiết đơn hàng
+// API route: GET /api/orders/[id] - Lấy chi tiết đơn hàng (Mock data)
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { connectToDatabase } from '@/lib/mongodb';
+import { mockOrders } from '@/lib/mockData';
 import { getUserFromRequest } from '@/lib/auth';
-import { Order } from '@/types';
-import { ObjectId } from 'mongodb';
 
-// Handler cho GET request
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Chỉ cho phép GET method
   if (req.method !== 'GET') {
     return res.status(405).json({
       success: false,
@@ -19,35 +15,18 @@ export default async function handler(
   }
 
   try {
-    // Kết nối database
-    const { db } = await connectToDatabase();
-    
-    // Lấy ID từ query
     const { id } = req.query;
 
-    // Validate ID
-    if (!id || typeof id !== 'string' || !ObjectId.isValid(id)) {
+    if (!id || typeof id !== 'string') {
       return res.status(400).json({
         success: false,
         message: 'ID không hợp lệ'
       });
     }
 
-    // Kiểm tra authentication
-    const user = getUserFromRequest(req);
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Chưa đăng nhập'
-      });
-    }
+    // Mock: Find order (in real app, this would query database)
+    const order = mockOrders.find(o => o._id === id);
 
-    // Tìm đơn hàng
-    const order = await db
-      .collection<Order>('orders')
-      .findOne({ _id: new ObjectId(id) as any });
-
-    // Kiểm tra nếu không tìm thấy
     if (!order) {
       return res.status(404).json({
         success: false,
@@ -55,21 +34,20 @@ export default async function handler(
       });
     }
 
-    // Kiểm tra quyền truy cập (user chỉ xem được đơn hàng của mình, admin xem được tất cả)
-    if (user.role !== 'admin' && order.userId !== user.userId) {
+    // Check permissions (mock)
+    const user = getUserFromRequest(req);
+    if (user && user.role !== 'admin' && order.userId !== user.userId) {
       return res.status(403).json({
         success: false,
         message: 'Không có quyền truy cập đơn hàng này'
       });
     }
 
-    // Trả về kết quả
     return res.status(200).json({
       success: true,
       data: order
     });
   } catch (error: any) {
-    // Xử lý lỗi
     return res.status(500).json({
       success: false,
       message: 'Lỗi khi lấy chi tiết đơn hàng',
@@ -77,4 +55,3 @@ export default async function handler(
     });
   }
 }
-

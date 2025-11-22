@@ -1,15 +1,11 @@
-// API route: POST /api/auth/register - Đăng ký tài khoản mới
+// API route: POST /api/auth/register - Đăng ký (Mock data)
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { connectToDatabase } from '@/lib/mongodb';
-import { hashPassword } from '@/lib/auth';
-import { User } from '@/types';
+import { generateToken } from '@/lib/auth';
 
-// Handler cho POST request
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  // Chỉ cho phép POST method
   if (req.method !== 'POST') {
     return res.status(405).json({
       success: false,
@@ -18,13 +14,9 @@ export default async function handler(
   }
 
   try {
-    // Kết nối database
-    const { db } = await connectToDatabase();
-
-    // Lấy dữ liệu từ request body
     const { email, password, fullName, phone } = req.body;
 
-    // Validate dữ liệu
+    // Validate
     if (!email || !password || !fullName) {
       return res.status(400).json({
         success: false,
@@ -49,45 +41,36 @@ export default async function handler(
       });
     }
 
-    // Kiểm tra email đã tồn tại chưa
-    const existingUser = await db.collection('users').findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email đã được sử dụng'
-      });
-    }
+    // Mock: Generate user ID
+    const userId = `user_${Date.now()}`;
 
-    // Hash password
-    const hashedPassword = await hashPassword(password);
-
-    // Tạo user mới
-    const newUser: User = {
+    // Generate token
+    const token = generateToken({
+      userId,
       email,
-      password: hashedPassword,
+      role: 'user'
+    });
+
+    // Mock user data
+    const newUser = {
+      _id: userId,
+      email,
       fullName,
       phone: phone || '',
-      role: 'user',
+      role: 'user' as const,
       createdAt: new Date(),
       updatedAt: new Date()
     };
 
-    // Insert vào database
-    const result = await db.collection('users').insertOne(newUser);
-
-    // Trả về kết quả (không trả về password)
-    const { password: _, ...userWithoutPassword } = newUser;
-    
     return res.status(201).json({
       success: true,
       message: 'Đăng ký thành công',
       data: {
-        ...userWithoutPassword,
-        _id: result.insertedId
+        token,
+        user: newUser
       }
     });
   } catch (error: any) {
-    // Xử lý lỗi
     return res.status(500).json({
       success: false,
       message: 'Lỗi khi đăng ký',
@@ -95,4 +78,3 @@ export default async function handler(
     });
   }
 }
-

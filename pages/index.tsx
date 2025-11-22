@@ -30,7 +30,7 @@ export default function Home() {
       }
     } catch (error: any) {
       console.error('Error fetching accounts:', error);
-      setError('Lỗi kết nối server. Vui lòng kiểm tra MongoDB đã chạy chưa.');
+      setError('Lỗi kết nối server. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
     }

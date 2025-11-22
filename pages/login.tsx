@@ -17,7 +17,7 @@ export default function Login() {
   // Xử lý khi click vào "Quên mật khẩu?"
   const handleForgotPassword = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault(); // Ngăn chặn hành vi mặc định của link
-    setInfoMessage('Vui lòng liên hệ quản trị viên để được hỗ trợ đặt lại mật khẩu.'); // Hiển thị thông báo
+    setInfoMessage('Vui lòng liên hệ quản trị viên để được hỗ trợ.'); // Hiển thị thông báo
     setError(null); // Xóa error nếu có
   };
 
