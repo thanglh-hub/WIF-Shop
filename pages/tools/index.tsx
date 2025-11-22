@@ -1,56 +1,96 @@
 // Trang công cụ tiện ích
 'use client';
 
-import { useState } from 'react';
-import { FiShield, FiMail, FiKey, FiCopy, FiCheckCircle, FiRefreshCw } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { FiShield, FiKey, FiCopy, FiExternalLink, FiGlobe, FiMaximize2, FiCheckCircle } from 'react-icons/fi';
+import { authenticator } from 'otplib';
+import { QRCodeSVG } from 'qrcode.react';
 
 export default function Tools() {
-  const [email, setEmail] = useState(''); // State cho email
-  const [otpCode, setOtpCode] = useState(''); // State cho OTP code
-  const [loading, setLoading] = useState(false); // State cho loading
-  const [result, setResult] = useState<string | null>(null); // State cho kết quả
-  const [copied, setCopied] = useState(false); // State cho copy status
+  // State cho password generator
+  const [passwordLength, setPasswordLength] = useState(16); // State cho độ dài mật khẩu
+  const [generatedPassword, setGeneratedPassword] = useState(''); // State cho mật khẩu đã tạo
+  const [passwordCopied, setPasswordCopied] = useState(false); // State cho copy password
 
-  // Xử lý lấy OTP từ email
-  const handleGetOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setResult(null);
-    setCopied(false);
+  // State cho 2FA
+  const [secretKey, setSecretKey] = useState(''); // State cho secret key
+  const [totpCode, setTotpCode] = useState(''); // State cho mã 2FA
+  const [totpCopied, setTotpCopied] = useState(false); // State cho copy 2FA code
 
+  // State cho QR code
+  const [qrText, setQrText] = useState(''); // State cho text/URL để tạo QR code
+  const [showQRCode, setShowQRCode] = useState(false); // State để hiển thị QR code
+
+  // Hàm tạo mật khẩu ngẫu nhiên
+  const generatePassword = () => {
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?'; // Bộ ký tự cho mật khẩu
+    let password = ''; // Khởi tạo mật khẩu rỗng
+    for (let i = 0; i < passwordLength; i++) { // Lặp theo độ dài mật khẩu
+      password += charset.charAt(Math.floor(Math.random() * charset.length)); // Thêm ký tự ngẫu nhiên
+    }
+    setGeneratedPassword(password); // Cập nhật state mật khẩu
+    setPasswordCopied(false); // Reset trạng thái copy
+  };
+
+  // Hàm copy mật khẩu
+  const handleCopyPassword = () => {
+    if (generatedPassword) { // Kiểm tra có mật khẩu không
+      navigator.clipboard.writeText(generatedPassword); // Copy vào clipboard
+      setPasswordCopied(true); // Đánh dấu đã copy
+      setTimeout(() => setPasswordCopied(false), 2000); // Reset sau 2 giây
+    }
+  };
+
+  // Hàm tạo mã 2FA từ secret key
+  const generate2FA = () => {
+    if (!secretKey.trim()) { // Kiểm tra secret key có rỗng không
+      alert('Vui lòng nhập secret key'); // Hiển thị thông báo
+      return; // Dừng hàm
+    }
     try {
-      // Gọi API để lấy OTP từ email
-      const response = await fetch('/api/tools/get-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setOtpCode(data.data.code);
-        setResult('Đã lấy mã OTP thành công!');
-      } else {
-        setResult(data.message || 'Không thể lấy mã OTP. Vui lòng thử lại.');
-      }
+      // Tạo mã TOTP từ secret key
+      const token = authenticator.generate(secretKey.trim()); // Tạo mã 6 chữ số
+      setTotpCode(token); // Cập nhật mã 2FA
+      setTotpCopied(false); // Reset trạng thái copy
     } catch (error) {
-      setResult('Có lỗi xảy ra. Vui lòng thử lại.');
-    } finally {
-      setLoading(false);
+      alert('Secret key không hợp lệ. Vui lòng kiểm tra lại.'); // Hiển thị lỗi
+      setTotpCode(''); // Xóa mã nếu lỗi
     }
   };
 
-  // Xử lý copy OTP code
-  const handleCopy = () => {
-    if (otpCode) {
-      navigator.clipboard.writeText(otpCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  // Hàm copy mã 2FA
+  const handleCopy2FA = () => {
+    if (totpCode) { // Kiểm tra có mã 2FA không
+      navigator.clipboard.writeText(totpCode); // Copy vào clipboard
+      setTotpCopied(true); // Đánh dấu đã copy
+      setTimeout(() => setTotpCopied(false), 2000); // Reset sau 2 giây
     }
   };
+
+  // Hàm tạo QR code
+  const generateQRCode = () => {
+    if (!qrText.trim()) { // Kiểm tra text có rỗng không
+      alert('Vui lòng nhập text hoặc URL'); // Hiển thị thông báo
+      return; // Dừng hàm
+    }
+    setShowQRCode(true); // Hiển thị QR code
+  };
+
+  // Auto refresh mã 2FA mỗi 30 giây
+  useEffect(() => {
+    if (secretKey && totpCode) { // Kiểm tra có secret key và mã 2FA không
+      const interval = setInterval(() => { // Tạo interval
+        try {
+          const token = authenticator.generate(secretKey.trim()); // Tạo mã mới
+          setTotpCode(token); // Cập nhật mã
+        } catch (error) {
+          // Bỏ qua lỗi
+        }
+      }, 30000); // Mỗi 30 giây
+
+      return () => clearInterval(interval); // Clear interval khi unmount
+    }
+  }, [secretKey, totpCode]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -65,118 +105,82 @@ export default function Tools() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Tool 1: Lấy mã 2FA */}
-          <div className="card p-6">
+          <div className="card p-6 flex flex-col h-full">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
                 <FiShield className="w-6 h-6 text-primary-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">Mã 2FA</h2>
+                <h2 className="text-xl font-bold">Lấy mã xác thực ChatGPT</h2>
                 <p className="text-sm text-gray-500">Lấy mã xác thực 2 yếu tố</p>
               </div>
             </div>
             <p className="text-gray-600 mb-4">
-              Nhập secret key của bạn để lấy mã 2FA hiện tại. Mã sẽ tự động cập nhật mỗi 30 giây.
+              Nhập secret key Shop đã cấp để lấy mã 2FA.
             </p>
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Nhập secret key..."
-                className="input"
-              />
-              <button className="w-full btn btn-primary">
+            <div className="flex-grow flex flex-col">
+              <div className="space-y-3 mb-auto">
+                <input
+                  type="text"
+                  placeholder="Nhập secret key..."
+                  value={secretKey}
+                  onChange={(e) => setSecretKey(e.target.value)}
+                  className="input"
+                />
+              </div>
+              <button 
+                onClick={generate2FA}
+                className="w-full btn btn-primary mt-3"
+              >
                 Lấy mã 2FA
               </button>
-            </div>
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Mã 2FA:</p>
-              <div className="flex items-center justify-between">
-                <code className="text-lg font-mono font-bold text-primary-600">000000</code>
-                <button
-                  onClick={() => navigator.clipboard.writeText('000000')}
-                  className="text-primary-600 hover:text-primary-700"
-                >
-                  <FiCopy className="w-5 h-5" />
-                </button>
-              </div>
+              {totpCode && (
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600 mb-1">Mã 2FA:</p>
+                  <div className="flex items-center justify-between">
+                    <code className="text-lg font-mono font-bold text-primary-600">{totpCode}</code>
+                    <button
+                      onClick={handleCopy2FA}
+                      className="text-primary-600 hover:text-primary-700"
+                    >
+                      {totpCopied ? (
+                        <FiCheckCircle className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <FiCopy className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Tool 2: Lấy OTP từ email */}
-          <div className="card p-6">
+          {/* Tool 2: Tiện ích Netflix */}
+          <div className="card p-6 flex flex-col h-full">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <FiMail className="w-6 h-6 text-green-600" />
+                <FiGlobe className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">OTP từ Email</h2>
-                <p className="text-sm text-gray-500">Lấy mã OTP từ email</p>
+                <h2 className="text-xl font-bold">Tiện ích Netflix</h2>
+                <p className="text-sm text-gray-500">Truy cập VIVA để quản lý tài khoản</p>
               </div>
             </div>
             <p className="text-gray-600 mb-4">
-              Nhập địa chỉ email để lấy mã OTP mới nhất từ hộp thư đến.
+              Truy cập VIVA để quản lý và sử dụng tài khoản Netflix của bạn một cách dễ dàng.
             </p>
-            <form onSubmit={handleGetOTP} className="space-y-3">
-              <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Nhập email..."
-                  required
-                  className="input pl-10"
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full btn btn-primary flex items-center justify-center space-x-2"
+            <div className="flex-grow flex flex-col">
+              <div className="h-10 mb-auto"></div>
+              <a
+                href="https://vivarocky.in/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full btn btn-primary flex items-center justify-center space-x-2 mt-3"
               >
-                {loading ? (
-                  <>
-                    <FiRefreshCw className="w-5 h-5 animate-spin" />
-                    <span>Đang tìm kiếm...</span>
-                  </>
-                ) : (
-                  <>
-                    <FiKey className="w-5 h-5" />
-                    <span>Lấy mã OTP</span>
-                  </>
-                )}
-              </button>
-            </form>
-
-            {/* Kết quả */}
-            {result && (
-              <div className={`mt-4 p-3 rounded-lg ${
-                otpCode ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
-              }`}>
-                <p className={`text-sm ${otpCode ? 'text-green-800' : 'text-red-800'}`}>
-                  {result}
-                </p>
-              </div>
-            )}
-
-            {/* OTP Code */}
-            {otpCode && (
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Mã OTP:</p>
-                <div className="flex items-center justify-between">
-                  <code className="text-lg font-mono font-bold text-primary-600">{otpCode}</code>
-                  <button
-                    onClick={handleCopy}
-                    className="text-primary-600 hover:text-primary-700"
-                  >
-                    {copied ? (
-                      <FiCheckCircle className="w-5 h-5 text-green-600" />
-                    ) : (
-                      <FiCopy className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
+                <FiExternalLink className="w-5 h-5" />
+                <span>Truy cập VIVA</span>
+              </a>
+            </div>
           </div>
 
           {/* Tool 3: Password Generator */}
@@ -195,12 +199,13 @@ export default function Tools() {
             </p>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium mb-2">Độ dài mật khẩu</label>
+                <label className="block text-sm font-medium mb-2">Độ dài mật khẩu: {passwordLength}</label>
                 <input
                   type="range"
                   min="8"
                   max="32"
-                  defaultValue="16"
+                  value={passwordLength}
+                  onChange={(e) => setPasswordLength(Number(e.target.value))}
                   className="w-full"
                 />
                 <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -209,26 +214,38 @@ export default function Tools() {
                   <span>32</span>
                 </div>
               </div>
-              <button className="w-full btn btn-outline">
+              <button 
+                onClick={generatePassword}
+                className="w-full btn btn-outline"
+              >
                 Tạo mật khẩu
               </button>
             </div>
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Mật khẩu:</p>
-              <div className="flex items-center justify-between">
-                <code className="text-sm font-mono text-primary-600">••••••••••••••••</code>
-                <button className="text-primary-600 hover:text-primary-700">
-                  <FiCopy className="w-5 h-5" />
-                </button>
+            {generatedPassword && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Mật khẩu:</p>
+                <div className="flex items-center justify-between">
+                  <code className="text-sm font-mono text-primary-600 break-all pr-2">{generatedPassword}</code>
+                  <button 
+                    onClick={handleCopyPassword}
+                    className="text-primary-600 hover:text-primary-700 flex-shrink-0"
+                  >
+                    {passwordCopied ? (
+                      <FiCheckCircle className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <FiCopy className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Tool 4: QR Code Generator */}
           <div className="card p-6">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FiKey className="w-6 h-6 text-blue-600" />
+                <FiMaximize2 className="w-6 h-6 text-blue-600" />
               </div>
               <div>
                 <h2 className="text-xl font-bold">QR Code</h2>
@@ -242,17 +259,34 @@ export default function Tools() {
               <textarea
                 placeholder="Nhập text hoặc URL..."
                 rows={3}
+                value={qrText}
+                onChange={(e) => {
+                  setQrText(e.target.value);
+                  setShowQRCode(false);
+                }}
                 className="input"
               />
-              <button className="w-full btn btn-outline">
+              <button 
+                onClick={generateQRCode}
+                className="w-full btn btn-outline"
+              >
                 Tạo QR Code
               </button>
             </div>
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg text-center">
-              <div className="w-32 h-32 bg-white mx-auto rounded border-2 border-dashed border-gray-300 flex items-center justify-center">
-                <span className="text-gray-400 text-xs">QR Code</span>
+            {showQRCode && qrText && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg text-center">
+                <div className="w-32 h-32 bg-white mx-auto rounded border-2 border-gray-300 flex items-center justify-center p-2">
+                  <QRCodeSVG value={qrText} size={120} />
+                </div>
               </div>
-            </div>
+            )}
+            {!showQRCode && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg text-center">
+                <div className="w-32 h-32 bg-white mx-auto rounded border-2 border-dashed border-gray-300 flex items-center justify-center">
+                  <span className="text-gray-400 text-xs">QR Code</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
