@@ -119,9 +119,10 @@ export default async function handler(
         });
       }
 
-      // Thêm metadata
-      const newAccount: GameAccount = {
-        ...accountData,
+      // Thêm metadata (loại bỏ _id để MongoDB tự tạo)
+      const { _id, ...accountWithoutId } = accountData;
+      const newAccount: Omit<GameAccount, '_id'> = {
+        ...accountWithoutId,
         status: accountData.status || 'available',
         stock: accountData.stock || 1,
         soldCount: 0,
@@ -132,7 +133,7 @@ export default async function handler(
       };
 
       // Insert vào database
-      const result = await db.collection('accounts').insertOne(newAccount);
+      const result = await db.collection('accounts').insertOne(newAccount as any);
 
       // Trả về kết quả
       return res.status(201).json({
