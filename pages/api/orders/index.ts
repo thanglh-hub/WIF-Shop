@@ -93,10 +93,18 @@ export default async function handler(
       const validatedItems = [];
 
       for (const item of items) {
+        // Validate ObjectId
+        if (!ObjectId.isValid(item.accountId)) {
+          return res.status(400).json({
+            success: false,
+            message: `ID tài khoản không hợp lệ: ${item.title}`
+          });
+        }
+
         // Tìm tài khoản trong database
         const account = await db
           .collection<GameAccount>('accounts')
-          .findOne({ _id: new ObjectId(item.accountId) });
+          .findOne({ _id: new ObjectId(item.accountId) as any });
 
         // Kiểm tra nếu không tìm thấy
         if (!account) {
@@ -145,7 +153,7 @@ export default async function handler(
       // Cập nhật stock và status của các tài khoản
       for (const item of validatedItems) {
         await db.collection('accounts').updateOne(
-          { _id: new ObjectId(item.accountId) },
+          { _id: new ObjectId(item.accountId) as any },
           {
             $inc: { stock: -item.quantity, soldCount: item.quantity },
             $set: { 

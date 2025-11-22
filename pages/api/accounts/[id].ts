@@ -19,12 +19,15 @@ export default async function handler(
   const { id } = req.query;
 
   // Validate ID
-  if (!id || typeof id !== 'string') {
+  if (!id || typeof id !== 'string' || !ObjectId.isValid(id)) {
     return res.status(400).json({
       success: false,
       message: 'ID không hợp lệ'
     });
   }
+
+  // Tạo ObjectId instance
+  const objectId = new ObjectId(id);
 
   // GET: Lấy chi tiết tài khoản
   if (req.method === 'GET') {
@@ -32,7 +35,7 @@ export default async function handler(
       // Tìm tài khoản theo ID
       const account = await db
         .collection<GameAccount>('accounts')
-        .findOne({ _id: new ObjectId(id) });
+        .findOne({ _id: objectId as any });
 
       // Kiểm tra nếu không tìm thấy
       if (!account) {
@@ -88,7 +91,7 @@ export default async function handler(
       const result = await db
         .collection('accounts')
         .updateOne(
-          { _id: new ObjectId(id) },
+          { _id: objectId as any },
           { $set: updateData }
         );
 
@@ -103,7 +106,7 @@ export default async function handler(
       // Lấy tài khoản đã cập nhật
       const updatedAccount = await db
         .collection<GameAccount>('accounts')
-        .findOne({ _id: new ObjectId(id) });
+        .findOne({ _id: objectId as any });
 
       // Trả về kết quả
       return res.status(200).json({
@@ -136,7 +139,7 @@ export default async function handler(
       // Xóa trong database
       const result = await db
         .collection('accounts')
-        .deleteOne({ _id: new ObjectId(id) });
+        .deleteOne({ _id: objectId as any });
 
       // Kiểm tra nếu không tìm thấy
       if (result.deletedCount === 0) {

@@ -45,7 +45,7 @@ export default async function handler(
     // Tìm đơn hàng
     const order = await db
       .collection<Order>('orders')
-      .findOne({ _id: new ObjectId(id) });
+      .findOne({ _id: new ObjectId(id) as any });
 
     // Kiểm tra nếu không tìm thấy
     if (!order) {

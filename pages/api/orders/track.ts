@@ -44,7 +44,7 @@ export default async function handler(
     const order = await db
       .collection<Order>('orders')
       .findOne({
-        _id: new ObjectId(orderId as string),
+        _id: new ObjectId(orderId as string) as any,
         'shippingInfo.email': email
       });
 
