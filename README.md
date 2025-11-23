@@ -14,7 +14,6 @@ Website bán tài khoản game hiện đại, trực quan với giao diện đ�
 ## Công nghệ sử dụng
 
 - **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes (Mock Data)
 - **State Management**: Zustand
 - **Icons**: React Icons
 
@@ -26,15 +25,12 @@ Website bán tài khoản game hiện đại, trực quan với giao diện đ�
 npm install
 ```
 
-2. **Cấu hình environment variables (tùy chọn):**
-   Tạo file `.env.local` trong thư mục gốc nếu cần:
+2. **Cấu hình environment variables:**
+   Tạo file `.env.local` trong thư mục gốc:
 
 ```env
-JWT_SECRET=your-secret-key-change-this-in-production
-NEXT_PUBLIC_API_URL=http://localhost:3000/api
+NEXT_PUBLIC_API_URL=http://localhost:8000/api
 ```
-
-**Lưu ý**: Project sẽ kết nối với backend API riêng biệt. Vui lòng cấu hình backend API URL trong environment variables.
 
 3. **Chạy development server:**
 
@@ -53,8 +49,7 @@ project_shop_mmo/
 │   ├── Header.tsx
 │   ├── Footer.tsx
 │   └── AccountCard.tsx
-├── pages/              # Next.js pages và API routes
-│   ├── api/           # API endpoints
+├── pages/              # Next.js pages
 │   ├── products/      # Trang sản phẩm
 │   └── index.tsx      # Trang chủ
 ├── lib/               # Utilities
@@ -66,32 +61,6 @@ project_shop_mmo/
 └── styles/            # Global styles
     └── globals.css
 ```
-
-## API Endpoints
-
-### Accounts
-
-- `GET /api/accounts` - Lấy danh sách tài khoản
-- `GET /api/accounts/[id]` - Lấy chi tiết tài khoản
-- `POST /api/accounts` - Tạo tài khoản mới (admin only)
-- `PUT /api/accounts/[id]` - Cập nhật tài khoản (admin only)
-- `DELETE /api/accounts/[id]` - Xóa tài khoản (admin only)
-
-### Authentication
-
-- `POST /api/auth/register` - Đăng ký
-- `POST /api/auth/login` - Đăng nhập
-
-### Orders
-
-- `GET /api/orders` - Lấy danh sách đơn hàng
-- `POST /api/orders` - Tạo đơn hàng mới
-
-## Backend Integration
-
-Project hiện tại sử dụng Next.js API Routes nhưng sẽ được tách riêng thành backend service. Các API routes hiện tại đã được chuẩn bị để kết nối với backend API.
-
-**Lưu ý**: Tất cả các API routes đều có TODO comments để hướng dẫn tích hợp với backend API thực tế.
 
 ## Development
 
