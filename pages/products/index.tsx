@@ -12,9 +12,8 @@ export default function Products() {
   const [accounts, setAccounts] = useState<GameAccount[]>([]); // State cho danh sách tài khoản
   const [loading, setLoading] = useState(true); // State cho loading
   const [filters, setFilters] = useState({
-    gameType: 'all' as GameType | 'all',
-    minPrice: '',
-    maxPrice: '',
+    category: 'all',
+    sortBy: 'all',
     search: ''
   }); // State cho filters
   const [pagination, setPagination] = useState({
@@ -34,9 +33,8 @@ export default function Products() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (filters.gameType !== 'all') params.append('gameType', filters.gameType);
-      if (filters.minPrice) params.append('minPrice', filters.minPrice);
-      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+      if (filters.category !== 'all') params.append('category', filters.category);
+      if (filters.sortBy !== 'all') params.append('sortBy', filters.sortBy);
       if (filters.search) params.append('search', filters.search);
       if (router.query.search) params.append('search', router.query.search as string);
       params.append('page', pagination.page.toString());
@@ -64,9 +62,8 @@ export default function Products() {
   // Xử lý reset filters
   const handleResetFilters = () => {
     setFilters({
-      gameType: 'all',
-      minPrice: '',
-      maxPrice: '',
+      category: 'all',
+      sortBy: 'all',
       search: ''
     });
     setPagination(prev => ({ ...prev, page: 1 }));
@@ -86,43 +83,36 @@ export default function Products() {
           <div className="card p-6 sticky top-24">
             <h2 className="text-xl font-bold mb-4">Bộ lọc</h2>
             
-            {/* Game Type Filter */}
+            {/* Category Filter */}
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Loại game</label>
+              <label className="block text-sm font-medium mb-2">Danh mục</label>
               <select
-                value={filters.gameType}
-                onChange={(e) => handleFilterChange('gameType', e.target.value)}
+                value={filters.category}
+                onChange={(e) => handleFilterChange('category', e.target.value)}
                 className="input"
               >
                 <option value="all">Tất cả</option>
-                <option value="MMORPG">MMORPG</option>
-                <option value="FPS">FPS</option>
-                <option value="MOBA">MOBA</option>
-                <option value="RPG">RPG</option>
-                <option value="Strategy">Strategy</option>
-                <option value="Other">Khác</option>
+                <option value="genshin-impact">Genshin Impact</option>
+                <option value="valorant">Valorant</option>
+                <option value="netflix">Netflix</option>
+                <option value="spotify">Spotify</option>
+                <option value="chatgpt">ChatGPT</option>
+                <option value="other">Khác</option>
               </select>
             </div>
 
-            {/* Price Range Filter */}
+            {/* Sort By Price Filter */}
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Khoảng giá</label>
-              <div className="space-y-2">
-                <input
-                  type="number"
-                  placeholder="Từ (VNĐ)"
-                  value={filters.minPrice}
-                  onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                  className="input"
-                />
-                <input
-                  type="number"
-                  placeholder="Đến (VNĐ)"
-                  value={filters.maxPrice}
-                  onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                  className="input"
-                />
-              </div>
+              <label className="block text-sm font-medium mb-2">Sắp xếp theo giá</label>
+              <select
+                value={filters.sortBy}
+                onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                className="input"
+              >
+                <option value="all">Tất cả</option>
+                <option value="price-high-to-low">Từ cao đến thấp</option>
+                <option value="price-low-to-high">Từ thấp đến cao</option>
+              </select>
             </div>
 
             {/* Reset Button */}
@@ -177,39 +167,32 @@ export default function Products() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Loại game</label>
+                  <label className="block text-sm font-medium mb-2">Danh mục</label>
                   <select
-                    value={filters.gameType}
-                    onChange={(e) => handleFilterChange('gameType', e.target.value)}
+                    value={filters.category}
+                    onChange={(e) => handleFilterChange('category', e.target.value)}
                     className="input"
                   >
                     <option value="all">Tất cả</option>
-                    <option value="MMORPG">MMORPG</option>
-                    <option value="FPS">FPS</option>
-                    <option value="MOBA">MOBA</option>
-                    <option value="RPG">RPG</option>
-                    <option value="Strategy">Strategy</option>
-                    <option value="Other">Khác</option>
+                    <option value="genshin-impact">Genshin Impact</option>
+                    <option value="valorant">Valorant</option>
+                    <option value="netflix">Netflix</option>
+                    <option value="spotify">Spotify</option>
+                    <option value="chatgpt">ChatGPT</option>
+                    <option value="other">Khác</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Khoảng giá</label>
-                  <div className="space-y-2">
-                    <input
-                      type="number"
-                      placeholder="Từ (VNĐ)"
-                      value={filters.minPrice}
-                      onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                      className="input"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Đến (VNĐ)"
-                      value={filters.maxPrice}
-                      onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                      className="input"
-                    />
-                  </div>
+                  <label className="block text-sm font-medium mb-2">Sắp xếp theo giá</label>
+                  <select
+                    value={filters.sortBy}
+                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                    className="input"
+                  >
+                    <option value="all">Tất cả</option>
+                    <option value="price-high-to-low">Từ cao đến thấp</option>
+                    <option value="price-low-to-high">Từ thấp đến cao</option>
+                  </select>
                 </div>
                 <button
                   onClick={handleResetFilters}
@@ -298,13 +281,15 @@ export default function Products() {
             </>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">Không tìm thấy sản phẩm nào</p>
-              <button
-                onClick={handleResetFilters}
-                className="mt-4 btn btn-primary"
-              >
-                Xóa bộ lọc
-              </button>
+              <p className="text-gray-500 text-lg mb-4">Không tìm thấy sản phẩm nào</p>
+              {(filters.category !== 'all' || filters.sortBy !== 'all' || filters.search.trim() !== '') && (
+                <button
+                  onClick={handleResetFilters}
+                  className="btn btn-primary"
+                >
+                  Xóa bộ lọc
+                </button>
+              )}
             </div>
           )}
         </div>

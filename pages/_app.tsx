@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app';
 import '@/styles/globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import ContactSidebar from '@/components/ContactSidebar';
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -17,6 +18,9 @@ export default function App({ Component, pageProps }: AppProps) {
       
       {/* Footer component */}
       <Footer />
+      
+      {/* Contact Sidebar - Sidebar liên lạc với các kênh mạng xã hội */}
+      <ContactSidebar />
     </div>
   );
 }

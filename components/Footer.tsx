@@ -15,11 +15,6 @@ export default function Footer() {
             <p className="text-sm mb-4">
               Chuyên cung cấp tài khoản game uy tín, chất lượng với giá cả hợp lý.
             </p>
-            <div className="flex space-x-4">
-              <a href="https://www.facebook.com/wifshop.f" className="hover:text-primary-400 transition-colors">
-                <FiFacebook className="w-5 h-5" />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
