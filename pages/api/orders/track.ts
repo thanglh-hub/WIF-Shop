@@ -1,6 +1,5 @@
-// API route: GET /api/orders/track - Tra cứu đơn hàng (Mock data)
+// API route: GET /api/orders/track - Tra cứu đơn hàng
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { mockOrders } from '@/lib/mockData';
 
 export default async function handler(
   req: NextApiRequest,
@@ -23,17 +22,14 @@ export default async function handler(
       });
     }
 
-    // Mock: Find order
-    const order = mockOrders.find(
-      o => o._id === orderId && o.shippingInfo.email === email
-    );
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy đơn hàng. Vui lòng kiểm tra lại mã đơn hàng và email.'
-      });
-    }
+    // TODO: Kết nối với backend API để tìm đơn hàng
+    // const order = await findOrderFromBackend(orderId, email);
+    
+    // Tạm thời trả về 404 vì chưa có backend
+    return res.status(404).json({
+      success: false,
+      message: 'Chức năng này cần kết nối với backend API'
+    });
 
     return res.status(200).json({
       success: true,

@@ -77,19 +77,16 @@ export default function Home() {
           ) : error ? (
             <div className="text-center py-12">
               <p className="text-red-500 text-lg mb-4">{error}</p>
-              <Link href="/admin/seed" className="btn btn-primary">
-                Tạo Mockup Data
-              </Link>
+              <p className="text-gray-400 text-sm">
+                Vui lòng kiểm tra kết nối với backend API
+              </p>
             </div>
           ) : (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg mb-4">Chưa có sản phẩm nào</p>
-              <p className="text-gray-400 text-sm mb-6">
-                Click vào nút bên dưới để thêm 3 sản phẩm mẫu vào database
+              <p className="text-gray-400 text-sm">
+                Dữ liệu sẽ được lấy từ backend API
               </p>
-              <Link href="/admin/seed" className="btn btn-primary">
-                Tạo Mockup Data
-              </Link>
             </div>
           )}
 

@@ -34,7 +34,7 @@ JWT_SECRET=your-secret-key-change-this-in-production
 NEXT_PUBLIC_API_URL=http://localhost:3000/api
 ```
 
-**Lưu ý**: Project hiện đang sử dụng Mock Data, không cần cấu hình MongoDB.
+**Lưu ý**: Project sẽ kết nối với backend API riêng biệt. Vui lòng cấu hình backend API URL trong environment variables.
 
 3. **Chạy development server:**
 
@@ -58,16 +58,13 @@ project_shop_mmo/
 │   ├── products/      # Trang sản phẩm
 │   └── index.tsx      # Trang chủ
 ├── lib/               # Utilities
-│   ├── mockData.ts    # Mock data cho development
 │   └── auth.ts        # Authentication helpers
 ├── store/             # State management
 │   └── cartStore.ts   # Giỏ hàng store
 ├── types/             # TypeScript types
 │   └── index.ts
-├── styles/            # Global styles
-│   └── globals.css
-└── scripts/           # Scripts
-    └── seedData.ts    # Seed mockup data
+└── styles/            # Global styles
+    └── globals.css
 ```
 
 ## API Endpoints
@@ -90,15 +87,11 @@ project_shop_mmo/
 - `GET /api/orders` - Lấy danh sách đơn hàng
 - `POST /api/orders` - Tạo đơn hàng mới
 
-## Mock Data
+## Backend Integration
 
-Project sử dụng Mock Data được định nghĩa trong `lib/mockData.ts`. Dữ liệu mẫu bao gồm:
+Project hiện tại sử dụng Next.js API Routes nhưng sẽ được tách riêng thành backend service. Các API routes hiện tại đã được chuẩn bị để kết nối với backend API.
 
-- Tài khoản game mẫu (Genshin Impact, Valorant, ...)
-- Đơn hàng mẫu
-- Người dùng mẫu
-
-**Lưu ý**: Tất cả dữ liệu chỉ tồn tại trong memory, sẽ mất khi restart server. Để sử dụng database thật, bạn cần tích hợp MongoDB hoặc database khác.
+**Lưu ý**: Tất cả các API routes đều có TODO comments để hướng dẫn tích hợp với backend API thực tế.
 
 ## Development
 

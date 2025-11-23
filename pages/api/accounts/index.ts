@@ -1,7 +1,6 @@
-// API route: GET /api/accounts - Lấy danh sách tài khoản (Mock data)
-// API route: POST /api/accounts - Tạo tài khoản mới (Mock - disabled)
+// API route: GET /api/accounts - Lấy danh sách tài khoản
+// API route: POST /api/accounts - Tạo tài khoản mới
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { mockAccounts } from '@/lib/mockData';
 import { GameAccount } from '@/types';
 
 // Handler cho GET và POST requests
@@ -23,8 +22,9 @@ export default async function handler(
         limit = '12'
       } = req.query;
 
-      // Filter mock data
-      let filteredAccounts = [...mockAccounts];
+      // TODO: Kết nối với backend API để lấy dữ liệu thực
+      // Hiện tại trả về empty array vì đã xóa mock data
+      let filteredAccounts: GameAccount[] = [];
 
       // Filter theo game type
       if (gameType && gameType !== 'all') {
@@ -85,11 +85,12 @@ export default async function handler(
     }
   }
 
-  // POST: Tạo tài khoản mới (Mock - disabled)
+  // POST: Tạo tài khoản mới
   if (req.method === 'POST') {
+    // TODO: Kết nối với backend API để tạo tài khoản
     return res.status(501).json({
       success: false,
-      message: 'Chức năng này tạm thời không khả dụng (Mock mode)'
+      message: 'Chức năng này cần kết nối với backend API'
     });
   }
 

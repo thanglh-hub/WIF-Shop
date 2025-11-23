@@ -1,6 +1,5 @@
-// API route: POST /api/auth/login - Đăng nhập (Mock data)
+// API route: POST /api/auth/login - Đăng nhập
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { mockUsers } from '@/lib/mockData';
 import { generateToken } from '@/lib/auth';
 
 export default async function handler(
@@ -25,34 +24,39 @@ export default async function handler(
       });
     }
 
-    // Mock login - accept any password for demo
-    const user = mockUsers.find(u => u.email === email);
+    // TODO: Kết nối với backend API để xác thực user
+    // const user = await authenticateUserFromBackend(email, password);
     
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Email hoặc mật khẩu không đúng'
-      });
-    }
-
-    // Generate token
-    const token = generateToken({
-      userId: user._id!,
-      email: user.email,
-      role: user.role
+    // Tạm thời trả về lỗi vì chưa có backend
+    return res.status(501).json({
+      success: false,
+      message: 'Chức năng này cần kết nối với backend API'
     });
 
-    // Trả về kết quả (không trả về password)
-    const { password: _, ...userWithoutPassword } = user;
+    // Code mẫu khi có backend:
+    // if (!user) {
+    //   return res.status(401).json({
+    //     success: false,
+    //     message: 'Email hoặc mật khẩu không đúng'
+    //   });
+    // }
+    // 
+    // const token = generateToken({
+    //   userId: user._id!,
+    //   email: user.email,
+    //   role: user.role
+    // });
+    // 
+    // const { password: _, ...userWithoutPassword } = user;
 
-    return res.status(200).json({
-      success: true,
-      message: 'Đăng nhập thành công',
-      data: {
-        token,
-        user: userWithoutPassword
-      }
-    });
+    // return res.status(200).json({
+    //   success: true,
+    //   message: 'Đăng nhập thành công',
+    //   data: {
+    //     token,
+    //     user: userWithoutPassword
+    //   }
+    // });
   } catch (error: any) {
     return res.status(500).json({
       success: false,

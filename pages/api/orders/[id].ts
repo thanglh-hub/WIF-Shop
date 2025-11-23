@@ -1,6 +1,5 @@
-// API route: GET /api/orders/[id] - Lấy chi tiết đơn hàng (Mock data)
+// API route: GET /api/orders/[id] - Lấy chi tiết đơn hàng
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { mockOrders } from '@/lib/mockData';
 import { getUserFromRequest } from '@/lib/auth';
 
 export default async function handler(
@@ -24,24 +23,32 @@ export default async function handler(
       });
     }
 
-    // Mock: Find order (in real app, this would query database)
-    const order = mockOrders.find(o => o._id === id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Không tìm thấy đơn hàng'
-      });
-    }
-
-    // Check permissions (mock)
+    // TODO: Kết nối với backend API để lấy đơn hàng
+    // const order = await getOrderFromBackend(id);
+    
+    // Check permissions
     const user = getUserFromRequest(req);
-    if (user && user.role !== 'admin' && order.userId !== user.userId) {
-      return res.status(403).json({
-        success: false,
-        message: 'Không có quyền truy cập đơn hàng này'
-      });
-    }
+    
+    // Tạm thời trả về 404 vì chưa có backend
+    return res.status(404).json({
+      success: false,
+      message: 'Chức năng này cần kết nối với backend API'
+    });
+    
+    // Code mẫu khi có backend:
+    // if (!order) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: 'Không tìm thấy đơn hàng'
+    //   });
+    // }
+    // 
+    // if (user && user.role !== 'admin' && order.userId !== user.userId) {
+    //   return res.status(403).json({
+    //     success: false,
+    //     message: 'Không có quyền truy cập đơn hàng này'
+    //   });
+    // }
 
     return res.status(200).json({
       success: true,

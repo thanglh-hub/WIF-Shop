@@ -1,6 +1,5 @@
-// API route: POST /api/orders - Tạo đơn hàng mới (Mock data)
+// API route: POST /api/orders - Tạo đơn hàng mới
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { mockAccounts } from '@/lib/mockData';
 
 export default async function handler(
   req: NextApiRequest,
@@ -31,40 +30,29 @@ export default async function handler(
       });
     }
 
+    // TODO: Kết nối với backend API để validate và tạo đơn hàng
     // Validate và tính tổng tiền
     let totalAmount = 0;
     const validatedItems = [];
 
     for (const item of items) {
-      const account = mockAccounts.find(acc => acc._id === item.accountId);
+      // TODO: Gọi API backend để lấy thông tin account
+      // const account = await fetchAccountFromBackend(item.accountId);
       
-      if (!account) {
-        return res.status(404).json({
-          success: false,
-          message: `Không tìm thấy tài khoản: ${item.title}`
-        });
-      }
-
-      if (account.status !== 'available' || account.stock < item.quantity) {
-        return res.status(400).json({
-          success: false,
-          message: `Tài khoản ${item.title} không còn hàng hoặc không khả dụng`
-        });
-      }
-
-      totalAmount += account.price * item.quantity;
+      // Tạm thời sử dụng dữ liệu từ request
+      totalAmount += item.price * item.quantity;
       validatedItems.push({
-        accountId: account._id!,
-        title: account.title,
-        price: account.price,
+        accountId: item.accountId,
+        title: item.title,
+        price: item.price,
         quantity: item.quantity
       });
     }
 
-    // Mock: Generate order ID
+    // TODO: Generate order ID từ backend
     const orderId = `order_${Date.now()}`;
 
-    // Mock order
+    // TODO: Lưu order vào backend database
     const newOrder = {
       _id: orderId,
       userId: userId || shippingInfo.email,
