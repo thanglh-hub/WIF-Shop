@@ -2,7 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FiShield, FiKey, FiCopy, FiExternalLink, FiGlobe, FiMaximize2, FiCheckCircle } from 'react-icons/fi';
+import { FiShield, FiKey, FiCopy, FiExternalLink, FiGlobe, FiCheckCircle } from 'react-icons/fi';
+import { FaQrcode } from 'react-icons/fa';
 import { authenticator } from 'otplib';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -11,11 +12,16 @@ export default function Tools() {
   const [passwordLength, setPasswordLength] = useState(16); // State cho độ dài mật khẩu
   const [generatedPassword, setGeneratedPassword] = useState(''); // State cho mật khẩu đã tạo
   const [passwordCopied, setPasswordCopied] = useState(false); // State cho copy password
+  const [useUppercase, setUseUppercase] = useState(true); // State cho chữ hoa
+  const [useLowercase, setUseLowercase] = useState(true); // State cho chữ thường
+  const [useNumbers, setUseNumbers] = useState(true); // State cho số
+  const [useSpecial, setUseSpecial] = useState(false); // State cho ký tự đặc biệt
 
   // State cho 2FA
   const [secretKey, setSecretKey] = useState(''); // State cho secret key
   const [totpCode, setTotpCode] = useState(''); // State cho mã 2FA
   const [totpCopied, setTotpCopied] = useState(false); // State cho copy 2FA code
+  const [timeRemaining, setTimeRemaining] = useState(0); // State cho thời gian còn lại (giây)
 
   // State cho QR code
   const [qrText, setQrText] = useState(''); // State cho text/URL để tạo QR code
@@ -23,13 +29,34 @@ export default function Tools() {
 
   // Hàm tạo mật khẩu ngẫu nhiên
   const generatePassword = () => {
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?'; // Bộ ký tự cho mật khẩu
+    let charset = ''; // Khởi tạo bộ ký tự rỗng
+    
+    if (useUppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; // Thêm chữ hoa nếu được chọn
+    if (useLowercase) charset += 'abcdefghijklmnopqrstuvwxyz'; // Thêm chữ thường nếu được chọn
+    if (useNumbers) charset += '0123456789'; // Thêm số nếu được chọn
+    if (useSpecial) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?'; // Thêm ký tự đặc biệt nếu được chọn
+    
+    if (charset === '') { // Kiểm tra nếu không có ký tự nào được chọn
+      alert('Vui lòng chọn ít nhất một loại ký tự'); // Hiển thị thông báo
+      return; // Dừng hàm
+    }
+    
     let password = ''; // Khởi tạo mật khẩu rỗng
     for (let i = 0; i < passwordLength; i++) { // Lặp theo độ dài mật khẩu
       password += charset.charAt(Math.floor(Math.random() * charset.length)); // Thêm ký tự ngẫu nhiên
     }
     setGeneratedPassword(password); // Cập nhật state mật khẩu
     setPasswordCopied(false); // Reset trạng thái copy
+  };
+  
+  // Hàm tăng độ dài mật khẩu
+  const increaseLength = () => {
+    if (passwordLength < 32) setPasswordLength(passwordLength + 1);
+  };
+  
+  // Hàm giảm độ dài mật khẩu
+  const decreaseLength = () => {
+    if (passwordLength > 8) setPasswordLength(passwordLength - 1);
   };
 
   // Hàm copy mật khẩu
@@ -39,6 +66,14 @@ export default function Tools() {
       setPasswordCopied(true); // Đánh dấu đã copy
       setTimeout(() => setPasswordCopied(false), 2000); // Reset sau 2 giây
     }
+  };
+
+  // Hàm tính thời gian còn lại của mã 2FA
+  const calculateTimeRemaining = () => {
+    const period = 30; // TOTP period là 30 giây
+    const currentTime = Math.floor(Date.now() / 1000); // Thời gian hiện tại (giây)
+    const timeInPeriod = currentTime % period; // Thời gian trong chu kỳ hiện tại
+    return period - timeInPeriod; // Thời gian còn lại
   };
 
   // Hàm tạo mã 2FA từ secret key
@@ -52,9 +87,11 @@ export default function Tools() {
       const token = authenticator.generate(secretKey.trim()); // Tạo mã 6 chữ số
       setTotpCode(token); // Cập nhật mã 2FA
       setTotpCopied(false); // Reset trạng thái copy
+      setTimeRemaining(calculateTimeRemaining()); // Cập nhật thời gian còn lại
     } catch (error) {
       alert('Secret key không hợp lệ. Vui lòng kiểm tra lại.'); // Hiển thị lỗi
       setTotpCode(''); // Xóa mã nếu lỗi
+      setTimeRemaining(0); // Reset thời gian
     }
   };
 
@@ -76,19 +113,34 @@ export default function Tools() {
     setShowQRCode(true); // Hiển thị QR code
   };
 
-  // Auto refresh mã 2FA mỗi 30 giây
+  // Auto refresh mã 2FA và cập nhật countdown
   useEffect(() => {
     if (secretKey && totpCode) { // Kiểm tra có secret key và mã 2FA không
-      const interval = setInterval(() => { // Tạo interval
-        try {
-          const token = authenticator.generate(secretKey.trim()); // Tạo mã mới
-          setTotpCode(token); // Cập nhật mã
-        } catch (error) {
-          // Bỏ qua lỗi
+      // Cập nhật thời gian còn lại mỗi giây
+      let lastRemaining = calculateTimeRemaining();
+      setTimeRemaining(lastRemaining);
+      
+      const countdownInterval = setInterval(() => {
+        const remaining = calculateTimeRemaining();
+        
+        // Khi chuyển từ 1 sang 30 (hết thời gian), tạo mã mới
+        if (lastRemaining === 1 && remaining === 30) {
+          try {
+            const token = authenticator.generate(secretKey.trim());
+            setTotpCode(token);
+            setTotpCopied(false);
+          } catch (error) {
+            // Bỏ qua lỗi
+          }
         }
-      }, 30000); // Mỗi 30 giây
+        
+        setTimeRemaining(remaining);
+        lastRemaining = remaining;
+      }, 1000); // Mỗi 1 giây
 
-      return () => clearInterval(interval); // Clear interval khi unmount
+      return () => clearInterval(countdownInterval); // Clear interval khi unmount
+    } else {
+      setTimeRemaining(0); // Reset thời gian nếu không có mã
     }
   }, [secretKey, totpCode]);
 
@@ -137,7 +189,7 @@ export default function Tools() {
               {totpCode && (
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600 mb-1">Mã 2FA:</p>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-2">
                     <code className="text-lg font-mono font-bold text-primary-600">{totpCode}</code>
                     <button
                       onClick={handleCopy2FA}
@@ -150,6 +202,12 @@ export default function Tools() {
                       )}
                     </button>
                   </div>
+                  {timeRemaining > 0 && (
+                    <div className="flex items-center space-x-1 text-xs text-gray-500">
+                      <span>Mã hết hạn sau:</span>
+                      <span className="font-medium text-primary-600">{timeRemaining}s</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -197,26 +255,92 @@ export default function Tools() {
             <p className="text-gray-600 mb-4">
               Tạo mật khẩu ngẫu nhiên an toàn với độ dài tùy chọn.
             </p>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">Độ dài mật khẩu: {passwordLength}</label>
-                <input
-                  type="range"
-                  min="8"
-                  max="32"
-                  value={passwordLength}
-                  onChange={(e) => setPasswordLength(Number(e.target.value))}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <label className="block text-sm font-medium mb-3">Độ dài mật khẩu: {passwordLength}</label>
+                <div className="flex items-center space-x-3">
+                  <button
+                    type="button"
+                    onClick={decreaseLength}
+                    disabled={passwordLength <= 8}
+                    className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-lg font-bold">-</span>
+                  </button>
+                  <div className="flex-1 relative">
+                    <input
+                      type="range"
+                      min="8"
+                      max="32"
+                      value={passwordLength}
+                      onChange={(e) => setPasswordLength(Number(e.target.value))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                      style={{
+                        background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${((passwordLength - 8) / (32 - 8)) * 100}%, #e5e7eb ${((passwordLength - 8) / (32 - 8)) * 100}%, #e5e7eb 100%)`
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={increaseLength}
+                    disabled={passwordLength >= 32}
+                    className="w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="text-lg font-bold">+</span>
+                  </button>
+                </div>
+                <div className="flex justify-between text-xs text-gray-500 mt-2">
                   <span>8</span>
-                  <span>16</span>
+                  <span className="font-medium">{passwordLength}</span>
                   <span>32</span>
                 </div>
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-3">Ký tự được sử dụng:</label>
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useUppercase}
+                      onChange={(e) => setUseUppercase(e.target.checked)}
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm font-medium">ABC</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useLowercase}
+                      onChange={(e) => setUseLowercase(e.target.checked)}
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm font-medium">abc</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useNumbers}
+                      onChange={(e) => setUseNumbers(e.target.checked)}
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm font-medium">123</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useSpecial}
+                      onChange={(e) => setUseSpecial(e.target.checked)}
+                      className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    />
+                    <span className="text-sm font-medium">#$&</span>
+                  </label>
+                </div>
+              </div>
+              
               <button 
                 onClick={generatePassword}
-                className="w-full btn btn-outline"
+                className="w-full btn btn-primary border-2 border-primary-600"
               >
                 Tạo mật khẩu
               </button>
@@ -245,7 +369,7 @@ export default function Tools() {
           <div className="card p-6">
             <div className="flex items-center space-x-3 mb-4">
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FiMaximize2 className="w-6 h-6 text-blue-600" />
+                <FaQrcode className="w-6 h-6 text-blue-600" />
               </div>
               <div>
                 <h2 className="text-xl font-bold">QR Code</h2>

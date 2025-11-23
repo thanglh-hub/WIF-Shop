@@ -74,56 +74,71 @@ export default function Header() {
           </form>
 
           {/* Navigation Links - Desktop */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-1">
             <Link 
               href="/products" 
-              className={`transition-colors ${
+              className={`relative px-4 py-2 rounded-lg transition-all duration-200 ${
                 isActive('/products') 
-                  ? 'text-primary-600 font-semibold' 
-                  : 'text-gray-700 hover:text-primary-600'
+                  ? 'text-primary-600 font-semibold bg-primary-50' 
+                  : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
               }`}
             >
               Sản phẩm
+              {isActive('/products') && (
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary-600 rounded-full"></span>
+              )}
             </Link>
             <Link 
               href="/blogs" 
-              className={`transition-colors ${
+              className={`relative px-4 py-2 rounded-lg transition-all duration-200 ${
                 isActive('/blogs') 
-                  ? 'text-primary-600 font-semibold' 
-                  : 'text-gray-700 hover:text-primary-600'
+                  ? 'text-primary-600 font-semibold bg-primary-50' 
+                  : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
               }`}
             >
               Blog
+              {isActive('/blogs') && (
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary-600 rounded-full"></span>
+              )}
             </Link>
             <Link 
               href="/tools" 
-              className={`transition-colors ${
+              className={`relative px-4 py-2 rounded-lg transition-all duration-200 ${
                 isActive('/tools') 
-                  ? 'text-primary-600 font-semibold' 
-                  : 'text-gray-700 hover:text-primary-600'
+                  ? 'text-primary-600 font-semibold bg-primary-50' 
+                  : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
               }`}
             >
               Công cụ
+              {isActive('/tools') && (
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary-600 rounded-full"></span>
+              )}
             </Link>
             <Link 
               href="/guide" 
-              className={`transition-colors ${
+              className={`relative px-4 py-2 rounded-lg transition-all duration-200 ${
                 isActive('/guide') 
-                  ? 'text-primary-600 font-semibold' 
-                  : 'text-gray-700 hover:text-primary-600'
+                  ? 'text-primary-600 font-semibold bg-primary-50' 
+                  : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
               }`}
             >
               Hướng dẫn mua hàng
+              {isActive('/guide') && (
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary-600 rounded-full"></span>
+              )}
             </Link>
             <Link 
               href="/contact" 
-              className={`transition-colors ${
+              className={`relative px-4 py-2 rounded-lg transition-all duration-200 ${
                 isActive('/contact') 
-                  ? 'text-primary-600 font-semibold' 
-                  : 'text-gray-700 hover:text-primary-600'
+                  ? 'text-primary-600 font-semibold bg-primary-50' 
+                  : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
               }`}
             >
               Liên hệ
+              {isActive('/contact') && (
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-primary-600 rounded-full"></span>
+              )}
             </Link>
           </nav>
 
@@ -195,10 +210,10 @@ export default function Header() {
               <Link
                 href="/products"
                 onClick={() => setIsMenuOpen(false)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`relative px-4 py-2.5 rounded-lg transition-all duration-200 ${
                   isActive('/products')
-                    ? 'bg-primary-100 text-primary-600 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-primary-50 text-primary-600 font-semibold border-l-4 border-primary-600'
+                    : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 Sản phẩm
@@ -206,10 +221,10 @@ export default function Header() {
               <Link
                 href="/blogs"
                 onClick={() => setIsMenuOpen(false)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`relative px-4 py-2.5 rounded-lg transition-all duration-200 ${
                   isActive('/blogs')
-                    ? 'bg-primary-100 text-primary-600 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-primary-50 text-primary-600 font-semibold border-l-4 border-primary-600'
+                    : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 Blog
@@ -217,10 +232,10 @@ export default function Header() {
               <Link
                 href="/tools"
                 onClick={() => setIsMenuOpen(false)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`relative px-4 py-2.5 rounded-lg transition-all duration-200 ${
                   isActive('/tools')
-                    ? 'bg-primary-100 text-primary-600 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-primary-50 text-primary-600 font-semibold border-l-4 border-primary-600'
+                    : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 Công cụ
@@ -228,10 +243,10 @@ export default function Header() {
               <Link
                 href="/contact"
                 onClick={() => setIsMenuOpen(false)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`relative px-4 py-2.5 rounded-lg transition-all duration-200 ${
                   isActive('/contact')
-                    ? 'bg-primary-100 text-primary-600 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-primary-50 text-primary-600 font-semibold border-l-4 border-primary-600'
+                    : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 Liên hệ
@@ -239,10 +254,10 @@ export default function Header() {
               <Link
                 href="/guide"
                 onClick={() => setIsMenuOpen(false)}
-                className={`px-4 py-2 rounded-lg transition-colors ${
+                className={`relative px-4 py-2.5 rounded-lg transition-all duration-200 ${
                   isActive('/guide')
-                    ? 'bg-primary-100 text-primary-600 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? 'bg-primary-50 text-primary-600 font-semibold border-l-4 border-primary-600'
+                    : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
                 Hướng dẫn mua hàng
